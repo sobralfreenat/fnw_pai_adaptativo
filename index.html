@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Guias Rápidos</title>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.8;
+            margin: 0;
+            font-size: 18px; /* Ligeiramente menor para acomodar mais info */
+            background-color: #f0f4f8; /* Fundo um pouco diferente para a página toda */
+            color: #333;
+            /* padding-top para mobile (botão hamburger) e padding-left para desktop (menu lateral) serão ajustados por JS/CSS */
+        }
+
+        /* --- Layout Principal --- */
+        #menu-navegacao-wrapper {
+            /* Estilos para o menu lateral fixo no desktop */
+            background-color: #ffffff; 
+            border-right: 1px solid #d1d9e0;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            color: #333;
+            height: 100vh; /* Altura total */
+            overflow-y: auto; /* Scroll se necessário */
+            padding: 20px 0; /* Padding vertical interno */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 260px; /* Largura do menu lateral */
+            z-index: 1000;
+            transition: transform 0.3s ease-in-out, left 0.3s ease-in-out; /* Para mobile */
+        }
+
+        .main-content-area {
+            /* padding-left para desktop, padding-top para mobile */
+            padding: 20px;
+            transition: margin-left 0.3s ease-in-out; /* Se o menu lateral for colapsável no futuro */
+        }
+        
+        .container {
+            max-width: 900px; /* Um pouco mais largo para desktop */
+            margin: 0 auto; /* Centralizado na área de conteúdo */
+            padding: 0px; /* Padding agora é no .main-content-area e .conteudo-guia */
+        }
+
+        /* Placeholder e Conteúdo dos Guias */
+        .conteudo-guia, #placeholder-inicial {
+            display: none; 
+            padding: 25px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-top: 0; /* Não precisa de margin-top se o padding já está no .main-content-area */
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .conteudo-guia.ativo, #placeholder-inicial.ativo {
+            display: block;
+        }
+        #placeholder-inicial {
+            text-align: center;
+            font-size: 22px;
+            color: #555;
+        }
+
+        /* Títulos e Textos */
+        h1 {
+            color: #0056b3;
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        h2 { 
+            color: #006778;
+            font-size: 24px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 8px;
+        }
+        p, li {
+            font-size: 17px; /* Ajustado */
+            margin-bottom: 12px;
+        }
+        strong {
+            color: #d6336c;
+        }
+        ul { padding-left: 30px; }
+        .step { margin-bottom: 8px; }
+        .important {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffeeba;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 14px;
+            color: #777;
+        }
+
+        /* --- Estilos do Menu de Navegação --- */
+        #menu-navegacao {
+            /* O nav em si não precisa de muito, o wrapper cuida do posicionamento */
+        }
+        #menu-navegacao h3#menu-titulo {
+            font-size: 20px;
+            color: #004085;
+            padding: 0 20px 15px 20px;
+            margin: 0 0 10px 0;
+            border-bottom: 1px solid #d1d9e0;
+            text-align: left;
+        }
+
+        #menu-navegacao ul#menu-lista {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #menu-navegacao li a, #menu-navegacao li span.nav-item-toggle {
+            display: flex; /* Para alinhar texto e seta */
+            align-items: center;
+            justify-content: space-between; /* Para empurrar a seta para a direita */
+            padding: 10px 20px;
+            color: #33475b;
+            text-decoration: none;
+            font-size: 16px;
+            border-bottom: 1px solid #e9edf0; /* Linha sutil entre itens */
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        #menu-navegacao li a:hover, #menu-navegacao li span.nav-item-toggle:hover {
+            background-color: #e7f5ff;
+            color: #0056b3;
+        }
+        #menu-navegacao li a.active-link {
+            background-color: #cce7ff;
+            color: #004085;
+            font-weight: bold;
+        }
+
+        /* Níveis aninhados */
+        #menu-navegacao ul ul {
+            padding-left: 0; /* Reset para listas aninhadas */
+            /* background-color: #f8f9fa; /* Fundo levemente diferente para subníveis */
+            display: none; /* Submenus ocultos por padrão */
+        }
+        #menu-navegacao ul ul li a, #menu-navegacao ul ul li span.nav-item-toggle {
+            padding-left: 35px; /* Indentação para subitens */
+            font-size: 15px;
+        }
+        #menu-navegacao ul ul ul li a, #menu-navegacao ul ul ul li span.nav-item-toggle {
+            padding-left: 50px; /* Mais indentação */
+        }
+
+        /* Seta para expandir/recolher */
+        .nav-item-arrow {
+            font-size: 12px;
+            transition: transform 0.3s ease;
+        }
+        .nav-item-arrow.expanded {
+            transform: rotate(90deg);
+        }
+
+        /* Botão Voltar (apenas mobile) */
+        #menu-navegacao li.voltar-principal-item a {
+            font-weight: bold;
+            color: #0056b3; 
+            background-color: #ddeeff; 
+        }
+        #menu-navegacao li.voltar-principal-item {
+            border-radius: 0;
+            margin-bottom: 0;
+        }
+
+        /* --- Botão Hamburger e Comportamento Mobile --- */
+        #menu-toggle {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1002;
+            background: #0056b3;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 22px;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 992px) { /* Ponto de quebra para o menu lateral sumir e hamburger aparecer */
+            #menu-navegacao-wrapper {
+                left: -280px; /* Começa fora da tela */
+                width: 280px; /* Largura do menu mobile */
+                padding-top: 50px; /* Espaço para o botão de fechar que é o menu-toggle */
+                border-right: none;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.15);
+            }
+            #menu-navegacao-wrapper.aberto {
+                left: 0;
+            }
+            #menu-toggle {
+                display: block;
+            }
+            .main-content-area {
+                padding-left: 20px; /* Remove o padding-left fixo do menu desktop */
+                padding-top: 60px; /* Espaço para o botão hamburger */
+                margin-left: 0 !important; /* Garantir que não haja margin-left do desktop */
+            }
+            html {
+                 scroll-padding-top: 60px; /* Para âncoras com header fixo mobile */
+            }
+             /* Título do menu no mobile */
+            #menu-navegacao h3#menu-titulo {
+                display: none; /* Já temos o botão de fechar/voltar */
+            }
+        }
+    </style>
+</head>
+<body>
+    <button id="menu-toggle" aria-label="Abrir menu" aria-expanded="false">&#9776;</button>
+
+    <header id="menu-navegacao-wrapper">
+        <nav id="menu-navegacao">
+            <h3 id="menu-titulo">Navegação</h3> <!-- Título inicial, pode ser sobrescrito -->
+            <ul id="menu-lista">
+                <!-- Menu populado por JavaScript -->
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main-content-area">
+        <div class="container">
+            <div id="placeholder-inicial" class="ativo">
+                <p>Bem-vindo! Selecione uma opção no menu para começar.</p>
+            </div>
+
+            <section class="conteudo-guia" id="guia-anydesk-content">
+                <h1>Guia Passo a Passo:<br>Transferência de Arquivos no AnyDesk</h1>
+                <h2 id="copiar-colar">1. Copiar e Colar (O jeito mais fácil)</h2>
+                <ul>
+                    <li class="step">No computador que <strong>TEM</strong> o arquivo: Selecione o arquivo que você quer copiar. Depois, aperte as teclas <strong>Ctrl</strong> e <strong>C</strong> ao mesmo tempo. (Ou, clique com o botão direito do mouse no arquivo e escolha "<strong>Copiar</strong>").</li>
+                    <li class="step">No seu computador (onde você quer <strong>SALVAR</strong> o arquivo): Vá para a pasta onde você quer colocar o arquivo. Aperte as teclas <strong>Ctrl</strong> e <strong>V</strong> ao mesmo tempo. (Ou, clique com o botão direito do mouse na pasta e escolha "<strong>Colar</strong>").</li>
+                </ul>
+                <h2 id="gerenciador-arquivos">2. Usando o Gerenciador de Arquivos do AnyDesk</h2>
+                <p>Se o "Copiar e Colar" não funcionar, tente isto:</p>
+                <ul>
+                    <li class="step">Quando estiver conectado com o outro computador, procure na barra de ferramentas do AnyDesk um ícone que parece uma pasta ou gaveta. Clique nele (é o <strong>Gerenciador de Arquivos</strong>).</li>
+                    <li class="step">Você verá opções como "<strong>Enviar</strong>" (para mandar um arquivo seu para o outro computador) ou "<strong>Receber</strong>" (para pegar um arquivo do outro computador para o seu). Escolha o que você precisa.</li>
+                    <li class="step">Uma janela vai abrir. Nela, escolha a pasta onde o arquivo está (se for "Enviar") ou onde você quer salvar (se for "Receber"). Depois, confirme a transferência.</li>
+                </ul>
+                <h2 id="arrastar-soltar">3. Arrastar e Soltar (Se funcionar na sua versão)</h2>
+                <ul>
+                    <li class="step">Algumas versões do AnyDesk deixam você fazer o seguinte: Clique no arquivo que quer transferir, segure o botão do mouse e arraste o arquivo de uma tela para a outra. Solte o botão do mouse para o arquivo ser copiado.</li>
+                </ul>
+                <h2 id="configuracoes-seguranca">4. Configurações de Segurança (Importante!)</h2>
+                <div class="important">
+                    <p><strong>Atenção:</strong> Para sua segurança, é muito importante verificar algumas coisas:</p>
+                    <ul>
+                        <li>Verifique nas configurações do AnyDesk se a opção "<strong>Transferência de Arquivos</strong>" está ligada. Se estiver desligada, você não vai conseguir transferir.</li>
+                        <li><strong>Nunca</strong> compartilhe o número de identificação (ID) da sua máquina AnyDesk com pessoas que você não conhece ou não confia. Isso mantém seus arquivos e seu computador seguros.</li>
+                    </ul>
+                </div>
+                <h2 id="mais-ajuda">5. Mais Ajuda</h2>
+                <p>Se precisar de mais detalhes ou se algo não estiver claro, você pode procurar o guia oficial do AnyDesk na internet.</p>
+            </section>
+
+            <section class="conteudo-guia" id="guia-outro-assunto-content">
+                <h1>Outro Assunto (Em Breve)</h1>
+                <p>Conteúdo para este guia será adicionado futuramente.</p>
+                <h2 id="outro-subitem-1">Subitem 1 deste novo guia</h2>
+                <p>Detalhes do subitem 1...</p>
+            </section>
+
+            <section class="conteudo-guia" id="secao-apps-celular-content">
+                <h1>Meus Aplicativos de Celular</h1>
+                <p>Navegue pelas categorias ou apps de celular listados no menu.</p>
+            </section>
+
+            <section class="conteudo-guia" id="secao-web-apps-content">
+                <h1>Meus Web Apps</h1>
+                <p>Navegue pelas categorias ou web apps listados no menu.</p>
+            </section>
+            
+            <div class="footer">
+                <p>Este é um portal de guias simplificados.</p>
+            </div>
+        </div> <!-- Fim .container -->
+    </main> <!-- Fim .main-content-area -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuToggle = document.getElementById('menu-toggle');
+            const menuWrapper = document.getElementById('menu-navegacao-wrapper');
+            const menuTituloEl = document.getElementById('menu-titulo'); // Renomeado para evitar conflito
+            const menuLista = document.getElementById('menu-lista');
+            const placeholderInicial = document.getElementById('placeholder-inicial');
+            const todosConteudosGuias = document.querySelectorAll('.conteudo-guia');
+            const mainContentArea = document.querySelector('.main-content-area');
+
+            let openPopups = {}; // Objeto para rastrear pop-ups abertos
+
+            const dadosNavegacao = [
+                {   id: 'anydesk', texto: 'Guia AnyDesk', icon: '📄', contentId: 'guia-anydesk-content',
+                    subitens: [
+                        { id: 'anydesk-copiar', texto: '1. Copiar e Colar', href: '#copiar-colar' },
+                        { id: 'anydesk-gerenciador', texto: '2. Gerenciador', href: '#gerenciador-arquivos' },
+                        { id: 'anydesk-arrastar', texto: '3. Arrastar e Soltar', href: '#arrastar-soltar' },
+                        { id: 'anydesk-seguranca', texto: '4. Segurança', href: '#configuracoes-seguranca' },
+                        { id: 'anydesk-ajuda', texto: '5. Mais Ajuda', href: '#mais-ajuda' }
+                    ]
+                },
+                {   id: 'outro-assunto', texto: 'Outro Assunto', icon: '💡', contentId: 'guia-outro-assunto-content',
+                    subitens: [
+                        { id: 'outro-sub1', texto: 'Subitem 1', href: '#outro-subitem-1' }
+                    ]
+                },
+                {   id: 'web-apps-raiz', texto: 'Web Apps', icon: '🌐', contentId: 'secao-web-apps-content',
+                    subitens: [
+                        {   id: 'fnw-categoria', texto: 'FNW', icon: '🏢',
+                            subitens: [
+                                { id: 'fnw-maduros', texto: 'Maduros e Idosos', icon: '👵', url: 'https://sobralfreenat.github.io/fnw_tecvip_maduros_idosos/' }
+                            ]
+                        }
+                        // Adicionar mais categorias de web apps aqui
+                    ]
+                },
+                {   id: 'apps-celular-raiz', texto: 'Apps Celular', icon: '📱', contentId: 'secao-apps-celular-content',
+                    subitens: [
+                         { id: 'sem-apps-celular', texto: 'Nenhum app cadastrado', isPlaceholder: true }
+                    ]
+                }
+            ];
+
+            let activeContentId = null; // Para saber qual conteúdo está ativo
+            let activePath = []; // Para destacar o caminho ativo no menu
+
+            function updateBodyPadding() {
+                const isMobile = window.innerWidth <= 992;
+                if (isMobile) {
+                    mainContentArea.style.paddingLeft = '20px'; // Reset para mobile
+                    mainContentArea.style.paddingTop = '60px'; 
+                    document.documentElement.style.scrollPaddingTop = '60px';
+                } else {
+                    mainContentArea.style.paddingLeft = (menuWrapper.offsetWidth + 20) + 'px';
+                    mainContentArea.style.paddingTop = '20px'; // Reset para desktop
+                    document.documentElement.style.scrollPaddingTop = '20px'; // Default para desktop se não houver header fixo
+                }
+            }
+
+            function showContent(contentId) {
+                activeContentId = contentId;
+                todosConteudosGuias.forEach(guia => {
+                    guia.classList.toggle('ativo', guia.id === contentId);
+                });
+                placeholderInicial.classList.toggle('ativo', !contentId);
+                
+                if (contentId) {
+                    // Não rola para o topo se a intenção for navegar para âncora
+                    // A rolagem para âncora será tratada no clique do item de menu
+                } else {
+                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+                renderMenu(); // Re-renderiza o menu para destacar o item ativo
+            }
+
+            function createMenuItem(item, currentPath) {
+                const li = document.createElement('li');
+                const itemElement = (item.href || item.url || item.subitens) ? document.createElement('a') : document.createElement('span');
+                itemElement.className = 'nav-item-text';
+                
+                let itemText = (item.icon ? item.icon + ' ' : '') + item.texto;
+                itemElement.innerHTML = itemText;
+
+                if (item.href) itemElement.href = item.href;
+
+                const pathString = currentPath.join('/');
+                const activePathString = activePath.join('/');
+                if (pathString === activePathString || (item.subitens && activePathString.startsWith(pathString))) {
+                    itemElement.classList.add('active-link'); 
+                }
+
+                if (item.subitens) {
+                    itemElement.classList.add('nav-item-toggle');
+                    const arrow = document.createElement('span');
+                    arrow.className = 'nav-item-arrow';
+                    arrow.innerHTML = '&rsaquo;'; 
+                    itemElement.appendChild(arrow);
+
+                    const subUl = document.createElement('ul');
+                    const isActiveBranch = activePathString.startsWith(pathString);
+                    if (isActiveBranch) {
+                        // Removido: subUl.style.display = 'block'; // Será controlado por hover/active state
+                        arrow.classList.add('expanded');
+                    }
+                     // Sempre renderiza os subitens, mas o UL começará escondido (display: none via CSS)
+                    item.subitens.forEach(subItem => {
+                        subUl.appendChild(createMenuItem(subItem, [...currentPath, subItem.id]));
+                    });
+                    li.appendChild(itemElement);
+                    li.appendChild(subUl);
+
+                    // Lógica de Hover para Desktop
+                    let leaveTimeout; // Váriavel para controlar o delay do mouseleave
+
+                    li.onmouseenter = () => {
+                        if(window.innerWidth > 992){ // Aplicar hover apenas no desktop
+                           clearTimeout(leaveTimeout); // Cancela qualquer timeout de fechamento pendente
+                           // Esconde outros submenus abertos no mesmo nível para evitar múltiplos abertos por hover
+                           const siblings = li.parentNode.children;
+                           for(let sibling of siblings) {
+                               if(sibling !== li) {
+                                   const otherSubUl = sibling.querySelector('ul');
+                                   const otherArrow = sibling.querySelector('.nav-item-arrow');
+                                   if(otherSubUl) otherSubUl.style.display = 'none';
+                                   if(otherArrow) otherArrow.classList.remove('expanded');
+                               }
+                           }
+                           // Mostra este submenu
+                           subUl.style.display = 'block';
+                           arrow.classList.add('expanded');
+                        }
+                    };
+
+                    li.onmouseleave = () => {
+                         if(window.innerWidth > 992){ // Aplicar hover apenas no desktop
+                           leaveTimeout = setTimeout(() => {
+                               subUl.style.display = 'none';
+                               arrow.classList.remove('expanded');
+                           }, 300); // Delay de 300ms para fechar
+                         }
+                    };
+                    
+                    // Manter o onclick original para acessibilidade (ou remover se for só hover?)
+                    // Por ora, vamos manter um onclick que apenas lida com o conteúdo, não com expandir/recolher.
+                    itemElement.onclick = (e) => {
+                        e.preventDefault(); // Previne o link 'a' vazio de navegar
+                        if(window.innerWidth > 992){ // Desktop: hover controla expansão
+                            if (item.contentId) {
+                                activePath = currentPath;
+                                showContent(item.contentId);
+                            } else {
+                                // Se for item intermediário (como FNW), mostra conteúdo do pai
+                                const parentWithContent = findParentWithContentId(currentPath);
+                                if(parentWithContent && parentWithContent.contentId){
+                                    activePath = currentPath.slice(0, currentPath.indexOf(parentWithContent.id) + 1);
+                                    showContent(parentWithContent.contentId);
+                                }
+                            }
+                             renderMenu(); // Re-renderiza para garantir o destaque
+                        } else { // Mobile: usa a lógica do createMobileMenuItem
+                           // Este onclick não deveria ser chamado no mobile se estamos usando createMobileMenuItem
+                           // Mas como fallback, podemos chamar a função de clique mobile?
+                           // Ou simplesmente não fazer nada aqui para mobile.
+                        }
+                    };
+
+                } else {
+                    li.appendChild(itemElement);
+                    itemElement.onclick = (e) => {
+                        activePath = currentPath;
+                        if (item.url) {
+                            const windowName = item.id + '_popup_window';
+                            // Verificar se o popup já existe, não está fechado, e tentar focar
+                            if (openPopups[windowName] && !openPopups[windowName].closed) {
+                                openPopups[windowName].focus();
+                            } else {
+                                const popupWidth = 400;
+                                const popupHeight = Math.min(800, screen.height - 50); 
+                                const left = screen.width - popupWidth - 10; 
+                                const top = 10; 
+                                openPopups[windowName] = window.open(item.url, windowName, `width=${popupWidth},height=${popupHeight},left=${left},top=${top},resizable=yes,scrollbars=yes`);
+                                if (openPopups[windowName]) openPopups[windowName].focus(); // Focar ao abrir pela primeira vez
+                            }
+                            renderMenu(); 
+                        } else if (item.href) {
+                            e.preventDefault(); // Prevenir comportamento padrão do link de âncora temporariamente
+                            const parentWithContent = findParentWithContentId(currentPath);
+                            if (parentWithContent && parentWithContent.contentId) {
+                                showContent(parentWithContent.contentId); // Garante que o conteúdo do guia está visível
+                                setTimeout(() => { // Delay para garantir que o DOM atualizou
+                                    const targetElement = document.querySelector(item.href);
+                                    if (targetElement) {
+                                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                    }
+                                }, 50);
+                            } else {
+                                location.href = item.href; // Fallback se não encontrar contentId pai
+                            }
+                        } else if (item.contentId) {
+                            showContent(item.contentId);
+                        } else if (item.isPlaceholder) {
+                            // Placeholder, não faz nada ao clicar, só é exibido
+                        } else {
+                            // Item sem ação específica, mas pode ser parte de um guia.
+                            // Garante que o conteúdo do guia pai (se houver) seja mostrado.
+                            const parentWithContent = findParentWithContentId(currentPath);
+                            if(parentWithContent && parentWithContent.contentId){
+                                showContent(parentWithContent.contentId);
+                            }
+                        }
+
+                        if (window.innerWidth <= 992 && menuWrapper.classList.contains('aberto')) {
+                             //if (!item.subitens) { // Comentado pois item não tem subitens aqui
+                                fecharMenuMobile();
+                             //}
+                        }
+                        renderMenu();
+                    };
+                }
+                return li;
+            }
+
+            // Helper para encontrar o item pai (ou o próprio item) que tem um contentId
+            function findParentWithContentId(pathArray) {
+                for (let i = pathArray.length; i > 0; i--) {
+                    const currentSubPath = pathArray.slice(0, i);
+                    const item = findItemByPathRecursive(currentSubPath);
+                    if (item && item.contentId) return item;
+                }
+                return null;
+            }
+            // Helper para encontrar um item na estrutura de dados pelo seu caminho de IDs
+            function findItemByPathRecursive(pathArray, currentLevel = dadosNavegacao) {
+                if (!pathArray || pathArray.length === 0) return null;
+                const idToFind = pathArray[0];
+                const foundItem = currentLevel.find(item => item.id === idToFind);
+                if (!foundItem) return null;
+                if (pathArray.length === 1) return foundItem;
+                if (foundItem.subitens) {
+                    return findItemByPathRecursive(pathArray.slice(1), foundItem.subitens);
+                }
+                return null;
+            }
+
+            // Estado da Pilha de Navegação Mobile (para o botão Voltar)
+            let mobileNavigationStack = [];
+
+            function renderMenu() {
+                const isMobile = window.innerWidth <= 992;
+                menuLista.innerHTML = '';
+                let itemsToRender;
+                let currentMenuTitle = "Navegação";
+
+                if (isMobile) {
+                    if (mobileNavigationStack.length === 0) {
+                        itemsToRender = dadosNavegacao;
+                        currentMenuTitle = "Menu Principal";
+                    } else {
+                        const parentItem = findItemByPathRecursive(mobileNavigationStack);
+                        itemsToRender = parentItem ? parentItem.subitens : [];
+                        currentMenuTitle = parentItem ? parentItem.texto : "Submenu";
+                        
+                        // Botão Voltar para Mobile
+                        const liVoltar = document.createElement('li');
+                        liVoltar.classList.add('voltar-principal-item');
+                        const aVoltar = document.createElement('a');
+                        aVoltar.innerHTML = '&larr; Voltar'; // Seta para esquerda
+                        aVoltar.onclick = () => {
+                            mobileNavigationStack.pop();
+                            renderMenu();
+                        };
+                        liVoltar.appendChild(aVoltar);
+                        menuLista.appendChild(liVoltar);
+                    }
+                    itemsToRender.forEach(item => {
+                        menuLista.appendChild(createMobileMenuItem(item, mobileNavigationStack));
+                    });
+
+                } else { // Desktop - Menu Lateral Expansível
+                    currentMenuTitle = "Navegação Principal";
+                    dadosNavegacao.forEach(item => {
+                        menuLista.appendChild(createMenuItem(item, [item.id]));
+                    });
+                }
+                menuTituloEl.textContent = currentMenuTitle;
+                updateBodyPadding();
+            }
+            
+            // Função para criar itens de menu especificamente para mobile (com lógica de stack)
+            function createMobileMenuItem(item, parentPathStack) {
+                const li = document.createElement('li');
+                const itemElement = document.createElement('a'); // Todos são 'a' no mobile para consistência de clique
+                itemElement.innerHTML = (item.icon ? item.icon + ' ' : '') + item.texto;
+
+                // Destacar item ativo (se o contentId dele estiver ativo)
+                if(activeContentId && item.contentId === activeContentId){
+                    itemElement.classList.add('active-link');
+                }
+
+                itemElement.onclick = (e) => {
+                    e.preventDefault();
+                    activePath = [...parentPathStack, item.id]; // Atualiza caminho global para destaque no desktop se visível
+
+                    if (item.subitens && !item.isPlaceholder) {
+                        mobileNavigationStack.push(item.id);
+                        renderMenu(); 
+                        if (item.contentId) {
+                            showContent(item.contentId); // Mostrar conteúdo se o item pai de submenu tiver
+                            activePath = [...parentPathStack, item.id]; // Atualiza o activePath globalmente
+                        }
+                    } else if (item.url) {
+                        const windowName = item.id + '_popup_window';
+                        if (openPopups[windowName] && !openPopups[windowName].closed) {
+                            openPopups[windowName].focus();
+                        } else {
+                            const popupWidth = 400;
+                            const popupHeight = Math.min(800, screen.height - 50);
+                            const left = screen.width - popupWidth - 10;
+                            const top = 10;
+                            openPopups[windowName] = window.open(item.url, windowName, `width=${popupWidth},height=${popupHeight},left=${left},top=${top},resizable=yes,scrollbars=yes`);
+                            if (openPopups[windowName]) openPopups[windowName].focus();
+                        }
+                        fecharMenuMobile();
+                    } else if (item.href) {
+                        e.preventDefault(); // Prevenir comportamento padrão do link de âncora
+                        activePath = [...parentPathStack, item.id]; // Atualiza o activePath globalmente
+                        const targetContentId = findParentWithContentId(activePath)?.contentId;
+                        if(targetContentId) {
+                            showContent(targetContentId);
+                            setTimeout(() => {
+                                const targetElement = document.querySelector(item.href);
+                                if (targetElement) targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }, 50);
+                        } else {
+                            location.href = item.href; // Fallback
+                        }
+                        fecharMenuMobile();
+                    } else if (item.contentId) {
+                        activePath = [...parentPathStack, item.id]; // Atualiza o activePath globalmente
+                        showContent(item.contentId);
+                        fecharMenuMobile();
+                    } else if (item.isPlaceholder) {
+                        // Não faz nada, só fecha o menu
+                        fecharMenuMobile();
+                    }
+                    // Para desktop, caso o clique mobile tenha implicações
+                    if(!isMobile) renderMenu(); 
+                };
+                li.appendChild(itemElement);
+                return li;
+            }
+
+            function fecharMenuMobile(){
+                menuWrapper.classList.remove('aberto');
+                menuToggle.setAttribute('aria-expanded', 'false');
+                menuToggle.innerHTML = '&#9776;';
+            }
+
+            // Controle do Menu Mobile (Hamburger)
+            if (menuToggle && menuWrapper) {
+                menuToggle.addEventListener('click', () => {
+                    const isMobile = window.innerWidth <= 992;
+                    menuWrapper.classList.toggle('aberto');
+                    const isExpanded = menuWrapper.classList.contains('aberto');
+                    menuToggle.setAttribute('aria-expanded', isExpanded);
+                    menuToggle.innerHTML = isExpanded ? '&times;' : '&#9776;';
+                    if(isExpanded && isMobile) {
+                        // Resetar stack mobile e renderizar menu ao abrir, caso tenha sido fechado em um subnível.
+                        // mobileNavigationStack = []; // Opcional: sempre voltar ao topo ao reabrir.
+                        renderMenu(); 
+                    }
+                });
+            }
+
+            // Inicialização
+            showContent(null); // Mostrar placeholder inicial
+            renderMenu(); 
+            window.addEventListener('resize', () => {
+                renderMenu(); // Re-renderiza o menu para adaptar entre mobile e desktop
+                updateBodyPadding();
+            });
+            window.addEventListener('load', () => {
+                updateBodyPadding(); // Garante padding correto após carregamento de fontes/imagens
+                // Tenta restaurar o estado da navegação se houver algo no hash
+                if (location.hash) {
+                    // Precisaria de uma lógica mais complexa para mapear hash para activePath e contentId
+                    // Por ora, apenas garante que o conteúdo do hash (se for uma âncora de guia) seja mostrado
+                    const potentialContentId = dadosNavegacao.find(item => item.subitens?.some(sub => sub.href === location.hash))?.contentId;
+                    if (potentialContentId) {
+                        showContent(potentialContentId);
+                        // Idealmente, também expandiria o menu até o item do hash
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
