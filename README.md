@@ -1,0 +1,1 @@
+# fnw_pai_adaptativo
